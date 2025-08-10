@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import re
 
 from FunPayAPI.common import exceptions, types
+from FunPayAPI.client import AsyncClient
 
 if TYPE_CHECKING:
     from FunPayAPI.account import Account
@@ -72,7 +73,9 @@ class AccountMixin:
         if self.__locale != new_locale and new_locale in ("ru", "en", "uk"):
             self.__set_locale = new_locale
 
-    async def get_user(self: Account, user_id: int, locale: Literal["ru", "en", "uk"] | None = None) -> types.UserProfile:
+    async def get_user(
+        self: Account, user_id: int, locale: Literal["ru", "en", "uk"] | None = None
+    ) -> types.UserProfile:
         """
         Парсит страницу пользователя.
 
@@ -88,9 +91,13 @@ class AccountMixin:
             locale = self.__profile_parse_locale
 
         if isinstance(self.client, AsyncClient):
-            response = await self.client.get(f"users/{user_id}/", headers={"accept": "*/*"}, locale=locale)
+            response = await self.client.get(
+                f"users/{user_id}/", headers={"accept": "*/*"}, locale=locale
+            )
         else:
-            response = self.client.get(f"users/{user_id}/", headers={"accept": "*/*"}, locale=locale)
+            response = self.client.get(
+                f"users/{user_id}/", headers={"accept": "*/*"}, locale=locale
+            )
 
         if response.status_code != 200:
             raise exceptions.RequestFailedError(response)
@@ -100,4 +107,5 @@ class AccountMixin:
         html_response = response.text
 
         from FunPayAPI.common.parser import parse_user_profile
+
         return parse_user_profile(html_response, self, user_id)

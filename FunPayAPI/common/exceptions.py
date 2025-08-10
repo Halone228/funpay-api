@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from primp.response import Response
+    from primp.primp import Response
 
 
 class FunPayAPIError(Exception):
@@ -75,6 +75,10 @@ class RaiseError(FunPayAPIError):
         self.wait_time = wait_time
         super().__init__(f"Failed to raise lots for category {category_name}. Reason: {message}")
 
+
+class UnauthorizedError(FunPayAPIError):
+    def __init(self):
+        super().__init__("Cant authoririze")
 
 class LotParsingError(FunPayAPIError):
     """Raised when parsing a lot fails."""
