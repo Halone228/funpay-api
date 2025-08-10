@@ -7,13 +7,11 @@ if TYPE_CHECKING:
     from ..account import Account
 
 import json
-import logging
+from loguru import logger
 from bs4 import BeautifulSoup
 
 from ..common import exceptions
 from .events import *
-
-logger = logging.getLogger("FunPayAPI.runner")
 
 
 class Runner:
@@ -43,12 +41,13 @@ class Runner:
 
     def __init__(self, account: Account, disable_message_requests: bool = False,
                  disabled_order_requests: bool = False,
-                 disabled_buyer_viewing_requests: bool = True):
+                 disabled_buyer_viewing_requests: bool = True,
+                 async_: bool = False):
         # todo добавить события и исключение событий о новых покупках (не продажах!)
         if not account.is_initiated:
             raise exceptions.AccountNotInitiatedError()
         if account.runner:
-            raise Exception("К аккаунту уже привязан Runner!")  # todo
+            raise exceptions.FunPayAPIError("An Account instance can only have one Runner instance.")
 
         self.make_msg_requests: bool = False if disable_message_requests else True
         """Делать ли доп. запросы для получения всех новых сообщений изменившихся чатов?"""
@@ -56,6 +55,8 @@ class Runner:
         """Делать ли доп запросы для получения новых / изменившихся заказов?"""
         self.make_buyer_viewing_requests: bool = False if disabled_buyer_viewing_requests else True
         """Делать ли доп запросы для получения поля "Покупатель смотрит"?"""
+        self.async_ = async_
+        """Использовать ли асинхронный режим?"""
 
         self.__first_request = True
         self.__last_msg_event_tag = utils.random_tag()
@@ -88,7 +89,7 @@ class Runner:
 
         self.__msg_time_re = re.compile(r"\d{2}:\d{2}")
 
-    def get_updates(self) -> dict:
+    async def get_updates(self) -> dict:
         """
         Запрашивает список событий FunPay.
 
@@ -122,12 +123,19 @@ class Runner:
             "x-requested-with": "XMLHttpRequest"
         }
 
-        response = self.account.method("post", "runner/", headers, payload, raise_not_200=True)
+        if self.async_:
+            response = await self.account.client.post("runner/", headers=headers, data=payload)
+        else:
+            response = self.account.client.post("runner/", headers=headers, data=payload)
+
+        if response.status_code != 200:
+            raise exceptions.RequestFailedError(response)
+
         json_response = response.json()
         logger.debug(f"Получены данные о событиях: {json_response}")
         return json_response
 
-    def parse_updates(self, updates: dict) -> list[InitialChatEvent | ChatsListChangedEvent |
+    async def parse_updates(self, updates: dict) -> list[InitialChatEvent | ChatsListChangedEvent |
                                                    LastChatMessageChangedEvent | NewMessageEvent | InitialOrderEvent |
                                                    OrdersListChangedEvent | NewOrderEvent | OrderStatusChangedEvent]:
         """
@@ -149,9 +157,9 @@ class Runner:
         # сортируем в т.ч. для того, корректно реагировало на сообщения покупателей сразу после оплаты (плагины автовыдачи)
         for obj in sorted(updates["objects"], key=lambda x: x.get("type") == "orders_counters", reverse=True):
             if obj.get("type") == "chat_bookmarks":
-                events.extend(self.parse_chat_updates(obj))
+                events.extend(await self.parse_chat_updates(obj))
             elif obj.get("type") == "orders_counters":
-                events.extend(self.parse_order_updates(obj))
+                events.extend(await self.parse_order_updates(obj))
             elif obj.get("type") == "c-p-u":
                 bv = self.account.parse_buyer_viewing(obj)
                 self.buyers_viewing[bv.buyer_id] = bv
@@ -159,7 +167,7 @@ class Runner:
             self.__first_request = False
         return events
 
-    def parse_chat_updates(self, obj) -> list[InitialChatEvent | ChatsListChangedEvent | LastChatMessageChangedEvent |
+    async def parse_chat_updates(self, obj) -> list[InitialChatEvent | ChatsListChangedEvent | LastChatMessageChangedEvent |
                                               NewMessageEvent]:
         """
         Парсит события, связанные с чатами.
@@ -261,7 +269,7 @@ class Runner:
                     bv_pack.append(interlocutor_id)
 
             chats_data = {i.chat.id: i.chat.name for i in chats_pack}
-            new_msg_events = self.generate_new_message_events(chats_data, bv_pack)
+            new_msg_events = await self.generate_new_message_events(chats_data, bv_pack)
 
             if self.make_buyer_viewing_requests:
                 # Если раньше айди не знали, то добавляем
@@ -277,7 +285,7 @@ class Runner:
                     events.extend(new_msg_events[i.chat.id])
         return events
 
-    def generate_new_message_events(self, chats_data: dict[int, str],
+    async def generate_new_message_events(self, chats_data: dict[int, str],
                                     interlocutor_ids: list[int] | None = None) -> dict[int, list[NewMessageEvent]]:
         """
         Получает историю переданных чатов и генерирует события новых сообщений.
@@ -294,7 +302,10 @@ class Runner:
         while attempts:
             attempts -= 1
             try:
-                chats = self.account.get_chats_histories(chats_data, interlocutor_ids)
+                if self.async_:
+                    chats = await self.account.get_chats_histories(chats_data, interlocutor_ids)
+                else:
+                    chats = self.account.get_chats_histories(chats_data, interlocutor_ids)
                 break
             except exceptions.RequestFailedError as e:
                 logger.error(e)
@@ -303,7 +314,7 @@ class Runner:
                 logger.debug("TRACEBACK", exc_info=True)
             time.sleep(1)
         else:
-            logger.error(f"Не удалось получить истории чатов {list(chats_data.keys())}: превышено кол-во попыток.")
+            logger.error(f"Failed to get chat histories for {list(chats_data.keys())}: exceeded the number of attempts.")
             return {}
 
         result = {}
@@ -341,7 +352,7 @@ class Runner:
                 result[cid].append(event)
         return result
 
-    def parse_order_updates(self, obj) -> list[InitialOrderEvent | OrdersListChangedEvent | NewOrderEvent |
+    async def parse_order_updates(self, obj) -> list[InitialOrderEvent | OrdersListChangedEvent | NewOrderEvent |
                                                OrderStatusChangedEvent]:
         """
         Парсит события, связанные с продажами.
@@ -368,7 +379,10 @@ class Runner:
         while attempts:
             attempts -= 1
             try:
-                orders_list = self.account.get_sales()  # todo добавить возможность реакции на подтверждение очень старых заказов
+                if self.async_:
+                    orders_list = await self.account.get_sales()
+                else:
+                    orders_list = self.account.get_sales()
                 break
             except exceptions.RequestFailedError as e:
                 logger.error(e)
@@ -377,7 +391,7 @@ class Runner:
                 logger.debug("TRACEBACK", exc_info=True)
             time.sleep(1)
         else:
-            logger.error("Не удалось обновить список продаж: превышено кол-во попыток.")
+            logger.error("Failed to update the sales list: exceeded the number of attempts.")
             return events
 
         saved_orders = {}
@@ -426,7 +440,7 @@ class Runner:
         else:
             self.by_bot_ids[chat_id].append(message_id)
 
-    def listen(self, requests_delay: int | float = 6.0,
+    async def listen(self, requests_delay: int | float = 6.0,
                ignore_exceptions: bool = True) -> Generator[InitialChatEvent | ChatsListChangedEvent |
                                                             LastChatMessageChangedEvent | NewMessageEvent |
                                                             InitialOrderEvent | OrdersListChangedEvent | NewOrderEvent |
@@ -455,8 +469,8 @@ class Runner:
             try:
                 self.__interlocutor_ids = set([event.message.interlocutor_id for event in events
                                                if event.type == EventTypes.NEW_MESSAGE])
-                updates = self.get_updates()
-                events.extend(self.parse_updates(updates))
+                updates = await self.get_updates()
+                events.extend(await self.parse_updates(updates))
                 next_events = []
                 for event in events:
                     if self.make_msg_requests and self.make_buyer_viewing_requests \
@@ -474,8 +488,8 @@ class Runner:
                 if not ignore_exceptions:
                     raise e
                 else:
-                    logger.error("Произошла ошибка при получении событий. "
-                                 "(ничего страшного, если это сообщение появляется нечасто).")
+                    logger.error("An error occurred while receiving events. "
+                                 "(it's okay if this message appears infrequently).")
                     logger.debug("TRACEBACK", exc_info=True)
             iteration_time = time.time() - start_time
             if time.time() - self.account.last_429_err_time > 60:

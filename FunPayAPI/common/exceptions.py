@@ -1,197 +1,95 @@
-"""
-В данном модуле описаны все кастомные исключения, используемые в пакете FunPayAPI.
-"""
-import requests
-from .. import types
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from primp.response import Response
 
 
-class AccountNotInitiatedError(Exception):
-    """
-    Исключение, которое возбуждается, если предпринята попытка вызвать метод класса :class:`FunPayAPI.account.Account`
-    без предварительного получения данных аккаунта с помощью метода :meth:`FunPayAPI.account.Account.get`.
-    """
+class FunPayAPIError(Exception):
+    """Base class for all FunPayAPI exceptions."""
+    pass
 
+
+class AccountNotInitiatedError(FunPayAPIError):
+    """Raised when the account has not been initiated with .get() before calling a method."""
     def __init__(self):
-        pass
-
-    def __str__(self):
-        return "Необходимо получить данные об аккаунте с помощью метода Account.get()"
+        super().__init__("The account has not been initiated with .get() before calling this method.")
 
 
-class RequestFailedError(Exception):
-    """
-    Исключение, которое возбуждается, если статус код ответа != 200.
-    """
-
-    def __init__(self, response: requests.Response):
-        """
-        :param response: объект ответа.
-        """
+class RequestFailedError(FunPayAPIError):
+    """Raised when a request to FunPay fails."""
+    def __init__(self, response: Response):
         self.response = response
-        self.status_code = response.status_code
-        self.url = response.request.url
-        self.request_headers = response.request.headers
-        if "cookie" in self.request_headers:
-            self.request_headers["cookie"] = "HIDDEN"
-        self.request_body = response.request.body
-        self.log_response = False
-
-    def short_str(self):
-        return f"Ошибка запроса к {self.url}. (Статус-код: {self.status_code})"
-
-    def __str__(self):
-        msg = f"Ошибка запроса к {self.url} .\n" \
-              f"Метод: {self.response.request.method} .\n" \
-              f"Статус-код ответа: {self.status_code} .\n" \
-              f"Заголовки запроса: {self.request_headers} .\n" \
-              f"Тело запроса: {self.request_body} .\n" \
-              f"Текст ответа: {self.response.text}"
-        if self.log_response:
-            msg += f"\n{self.response.content.decode()}"
-        return msg
+        super().__init__(f"Request to FunPay failed with status code {response.status_code}.")
 
 
-class UnauthorizedError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если не удалось найти идентифицирующий аккаунт элемент и / или произошло другое
-    событие, указывающее на отсутствие авторизации.
-    """
-
-    def __init__(self, response):
-        super(UnauthorizedError, self).__init__(response)
-
-    def short_str(self):
-        return "Не авторизирован (возможно, введен неверный golden_key?)."
+class ImageUploadError(FunPayAPIError):
+    """Raised when an image upload fails."""
+    def __init__(self, response: Response, message: str | None):
+        self.response = response
+        self.message = message
+        super().__init__(f"Image upload failed. Message: {message}")
 
 
-class WithdrawError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если произошла ошибка при попытке вывести средства с аккаунта.
-    """
-
-    def __init__(self, response, error_message: str | None):
-        super(WithdrawError, self).__init__(response)
-        self.error_message = error_message
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Произошла ошибка при выводе средств с аккаунта{f': {self.error_message}' if self.error_message else '.'}"
-
-
-class RaiseError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если произошла ошибка при попытке поднять лоты.
-    """
-
-    def __init__(self, response, category: types.Category, error_message: str | None, wait_time: int | None):
-        super(RaiseError, self).__init__(response)
-        self.category = category
-        self.error_message = error_message
-        self.wait_time = wait_time
-
-    def short_str(self):
-        return f"Не удалось поднять лоты категории \"{self.category.name}\"" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
-
-
-class ImageUploadError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если произошла ошибка при выгрузке изображения.
-    """
-
-    def __init__(self, response: requests.Response, error_message: str | None):
-        super(ImageUploadError, self).__init__(response)
-        self.error_message = error_message
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Произошла ошибка при выгрузке изображения{f': {self.error_message}' if self.error_message else '.'}"
-
-
-class MessageNotDeliveredError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если при отправке сообщения произошла ошибка.
-    """
-
-    def __init__(self, response: requests.Response, error_message: str | None, chat_id: int):
-        super(MessageNotDeliveredError, self).__init__(response)
-        self.error_message = error_message
+class MessageNotDeliveredError(FunPayAPIError):
+    """Raised when a message is not delivered."""
+    def __init__(self, response: Response, message: str | None, chat_id: int | str):
+        self.response = response
+        self.message = message
         self.chat_id = chat_id
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Не удалось отправить сообщение в чат {self.chat_id}" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
+        super().__init__(f"Message to chat {chat_id} not delivered. Reason: {message}")
 
 
-class FeedbackEditingError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если при добавлении / редактировании / удалении отзыва / ответа на отзыв
-    произошла ошибка.
-    """
-
-    def __init__(self, response: requests.Response, error_message: str | None, order_id: str):
-        super(FeedbackEditingError, self).__init__(response)
-        self.error_message = error_message
+class FeedbackEditingError(FunPayAPIError):
+    """Raised when there is an error editing feedback."""
+    def __init__(self, response: Response, message: str | None, order_id: str):
+        self.response = response
+        self.message = message
         self.order_id = order_id
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Не удалось изменить состояние отзыва / ответа на отзыв на заказ {self.order_id}" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
+        super().__init__(f"Error editing feedback for order {order_id}. Reason: {message}")
 
 
-class LotParsingError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если при получении полей лота произошла ошибка.
-    """
+class RefundError(FunPayAPIError):
+    """Raised when a refund fails."""
+    def __init__(self, response: Response, message: str | None, order_id: str):
+        self.response = response
+        self.message = message
+        self.order_id = order_id
+        super().__init__(f"Refund for order {order_id} failed. Reason: {message}")
 
-    def __init__(self, response: requests.Response, error_message: str | None, lot_id: int):
-        super(LotParsingError, self).__init__(response)
-        self.error_message = error_message
+
+class WithdrawError(FunPayAPIError):
+    """Raised when a withdrawal fails."""
+    def __init__(self, response: Response, message: str | None):
+        self.response = response
+        self.message = message
+        super().__init__(f"Withdrawal failed. Reason: {message}")
+
+
+class RaiseError(FunPayAPIError):
+    """Raised when raising lots fails."""
+    def __init__(self, response: Response, category_name: str, message: str | None, wait_time: int | None):
+        self.response = response
+        self.category_name = category_name
+        self.message = message
+        self.wait_time = wait_time
+        super().__init__(f"Failed to raise lots for category {category_name}. Reason: {message}")
+
+
+class LotParsingError(FunPayAPIError):
+    """Raised when parsing a lot fails."""
+    def __init__(self, response: Response, message: str | None, lot_id: int):
+        self.response = response
+        self.message = message
         self.lot_id = lot_id
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Не удалось получить данные лота {self.lot_id}" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
+        super().__init__(f"Failed to parse lot {lot_id}. Reason: {message}")
 
 
-class LotSavingError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если при сохранении лота произошла ошибка.
-    """
-
-    def __init__(self, response: requests.Response, error_message: str | None, lot_id: int, errors: dict[str, str]):
-        super(LotSavingError, self).__init__(response)
-        self.error_message = error_message
+class LotSavingError(FunPayAPIError):
+    """Raised when saving a lot fails."""
+    def __init__(self, response: Response, message: str | None, lot_id: int, errors: dict[str, str]):
+        self.response = response
+        self.message = message
         self.lot_id = lot_id
         self.errors = errors
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Не удалось сохранить лот {self.lot_id}" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
-
-
-class RefundError(RequestFailedError):
-    """
-    Исключение, которое возбуждается, если при возврате средств за заказ произошла ошибка.
-    """
-
-    def __init__(self, response: requests.Response, error_message: str | None, order_id: str):
-        super(RefundError, self).__init__(response)
-        self.error_message = error_message
-        self.order_id = order_id
-        if not self.error_message:
-            self.log_response = True
-
-    def short_str(self):
-        return f"Не удалось вернуть средства по заказу {self.order_id}" \
-               f"{f': {self.error_message}' if self.error_message else '.'}"
+        super().__init__(f"Failed to save lot {lot_id}. Reason: {message}, Errors: {errors}")
