@@ -84,23 +84,23 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         """Время последнего возникновения ошибки \"Нельзя отправлять сообщения слишком часто.\""""
         self.last_multiuser_flood_err_time: float = 0
         """Время последнего возникновения ошибки \"Нельзя слишком часто отправлять сообщения разным пользователям.\""""
-        self.__locale: Literal["ru", "en", "uk"] | None = None
+        self._locale: Literal["ru", "en", "uk"] | None = None
         """Текущий язык аккаунта."""
-        self.__default_locale: Literal["ru", "en", "uk"] | None = locale
+        self._default_locale: Literal["ru", "en", "uk"] | None = locale
         """Язык аккаунта по умолчанию."""
-        self.__profile_parse_locale: Literal["ru", "en", "uk"] | None = locale
+        self._profile_parse_locale: Literal["ru", "en", "uk"] | None = locale
         """Язык по умолчанию для Account.get_user()"""
-        self.__chat_parse_locale: Literal["ru", "en", "uk"] | None = None
+        self._chat_parse_locale: Literal["ru", "en", "uk"] | None = None
         """Язык по умолчанию для Account.get_chat()"""
-        # self.__sales_parse_locale: Literal["ru", "en", "uk"] | None = locale #todo
+        # self._sales_parse_locale: Literal["ru", "en", "uk"] | None = locale #todo
         """Язык по умолчанию для Account.get_sales()"""
-        self.__order_parse_locale: Literal["ru", "en", "uk"] | None = None
+        self._order_parse_locale: Literal["ru", "en", "uk"] | None = None
         """Язык по умолчанию для Account.get_order()"""
-        self.__lots_parse_locale: Literal["ru", "en", "uk"] | None = None
+        self._lots_parse_locale: Literal["ru", "en", "uk"] | None = None
         """Язык по умолчанию для Account.get_subcategory_public_lots()"""
-        self.__subcategories_parse_locale: Literal["ru", "en", "uk"] | None = None
+        self._subcategories_parse_locale: Literal["ru", "en", "uk"] | None = None
         """Язык по для получения названий разделов."""
-        self.__set_locale: Literal["ru", "en", "uk"] | None = None
+        self._set_locale: Literal["ru", "en", "uk"] | None = None
         """Язык, на который будет переведем аккаунт при следующем GET-запросе."""
         self.currency: FunPayAPI.types.Currency = FunPayAPI.types.Currency.UNKNOWN
         """Валюта аккаунта"""
@@ -116,26 +116,26 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         self.interlocutor_ids: dict[int, int] = {}
         """{id чата: id собеседника}"""
 
-        self.__initiated: bool = False
+        self._initiated: bool = False
 
-        self.__saved_chats: dict[int, types.ChatShortcut] = {}
+        self._saved_chats: dict[int, types.ChatShortcut] = {}
         self.runner: Runner | None = None
         """Объект Runner'а."""
         self._logout_link: str | None = None
         """Ссылка для выхода с аккаунта"""
-        self.__categories: list[types.Category] = []
-        self.__sorted_categories: dict[int, types.Category] = {}
+        self._categories: list[types.Category] = []
+        self._sorted_categories: dict[int, types.Category] = {}
 
-        self.__subcategories: list[types.SubCategory] = []
-        self.__sorted_subcategories: dict[types.SubCategoryTypes, dict[int, types.SubCategory]] = {
+        self._subcategories: list[types.SubCategory] = []
+        self._sorted_subcategories: dict[types.SubCategoryTypes, dict[int, types.SubCategory]] = {
             types.SubCategoryTypes.COMMON: {},
             types.SubCategoryTypes.CURRENCY: {}
         }
 
-        self.__bot_character = "⁡"
+        self._bot_character = "⁡"
         """Если сообщение начинается с этого символа, значит оно отправлено ботом."""
-        self.__old_bot_character = "⁤"
-        """Старое значение self.__bot_character, для корректной маркировки отправки ботом старых сообщений"""
+        self._old_bot_character = "⁤"
+        """Старое значение self._bot_character, для корректной маркировки отправки ботом старых сообщений"""
 
     async def get(self, update_phpsessid: bool = True) -> Account:
         """
@@ -149,7 +149,7 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         :rtype: :class:`FunPayAPI.account.Account`
         """
         if not self.is_initiated:
-            self.locale = self.__subcategories_parse_locale
+            self.locale = self._subcategories_parse_locale
 
         if isinstance(self.client, AsyncClient):
             response = await self.client.get("https://funpay.com/")
@@ -160,12 +160,13 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
             raise exceptions.RequestFailedError(response)
 
         if not self.is_initiated:
-            self.locale = self.__default_locale
+            self.locale = self._default_locale
         
         html_response = response.text
 
         from .common.parser import parse_account_data
         parse_account_data(html_response, self)
+        self._setup_categories(html_response)
 
         cookies = response.cookies
         if update_phpsessid or not self.phpsessid:
@@ -174,7 +175,7 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
 
         self.last_update = int(time.time())
         self.html = html_response
-        self.__initiated = True
+        self._initiated = True
         return self
 
 

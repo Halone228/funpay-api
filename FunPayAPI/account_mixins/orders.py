@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Optional
 
-from FunPayAPI.common import exceptions, types, utils
+from FunPayAPI.common import exceptions, utils
+from .. import types
 
 if TYPE_CHECKING:
     from FunPayAPI.account import Account
@@ -153,7 +154,7 @@ class OrdersMixin:
             "accept": "*/*"
         }
         if not locale:
-            locale = self.__order_parse_locale
+            locale = self._order_parse_locale
 
         if isinstance(self.client, AsyncClient):
             response = await self.client.get(f"orders/{order_id}/", headers=headers, locale=locale)
@@ -164,7 +165,7 @@ class OrdersMixin:
             raise exceptions.RequestFailedError(response)
 
         if locale:
-            self.locale = self.__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from FunPayAPI.common.parser import parse_order
@@ -245,7 +246,7 @@ class OrdersMixin:
         if start_from:
             filters["continue"] = start_from
 
-        locale = locale or self.__profile_parse_locale
+        locale = locale or self._profile_parse_locale
         if isinstance(self.client, AsyncClient):
             response = await self.client.post(link, data=filters, locale=locale) if start_from else await self.client.get(link, locale=locale)
         else:
@@ -255,7 +256,7 @@ class OrdersMixin:
             raise exceptions.RequestFailedError(response)
 
         if not start_from:
-            self.locale = self.__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from FunPayAPI.common.parser import parse_sales

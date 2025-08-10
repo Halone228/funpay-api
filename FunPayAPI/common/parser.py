@@ -26,7 +26,7 @@ def parse_account_data(html: str, account: Account) -> None:
     parser = BeautifulSoup(html, "lxml")
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (username). The page structure may have changed, or you may not be logged in.")
     account.username = username.text
     app_data = json.loads(parser.find("body").get("data-app-data"))
     account.locale = app_data.get("locale")
@@ -103,7 +103,7 @@ def parse_subcategory_public_lots(html: str, account: Account, subcategory_type:
 
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (balance). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
     offers = parser.find_all("a", {"class": "tc-item"})
@@ -171,7 +171,7 @@ def parse_my_subcategory_lots(html: str, account: Account, subcategory_id: int) 
 
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (lot description). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
     offers = parser.find_all("a", class_="tc-item")
@@ -207,7 +207,7 @@ def parse_lot_page(html: str, account: Account, lot_id: int) -> types.LotPage | 
     parser = BeautifulSoup(html, "lxml")
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (chat). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
 
@@ -247,7 +247,7 @@ def parse_balance(html: str, account: Account) -> types.Balance:
 
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (user profile). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
 
@@ -423,7 +423,7 @@ def parse_user_profile(html: str, account: Account, user_id: int) -> types.UserP
 
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (order page). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
 
@@ -500,7 +500,7 @@ def parse_order(html: str, account: Account, order_id: str) -> types.Order:
     parser = BeautifulSoup(html, "lxml")
     username = parser.find("div", {"class": "user-link-name"})
     if not username:
-        raise exceptions.UnauthorizedError()
+        raise exceptions.FunPayAPIError("Failed to parse an essential element (sales page). The page structure may have changed, or you may not be logged in.")
 
     _update_csrf_token(parser, account)
 
@@ -618,7 +618,7 @@ def parse_sales(html: str, account: Account, include_paid: bool, include_closed:
     if not start_from:
         username = parser.find("div", {"class": "user-link-name"})
         if not username:
-            raise exceptions.UnauthorizedError()
+            raise exceptions.FunPayAPIError("Failed to parse an essential element (lot page). The page structure may have changed, or you may not be logged in.")
 
     next_order_id = parser.find("input", {"type": "hidden", "name": "continue"})
     next_order_id = next_order_id.get("value") if next_order_id else None

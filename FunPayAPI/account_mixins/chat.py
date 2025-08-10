@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Optional, IO
 
-from FunPayAPI.common import exceptions, types, utils
+from FunPayAPI.common import exceptions, utils
+from .. import types
 from FunPayAPI.client import AsyncClient
 from bs4 import BeautifulSoup
 from loguru import logger
@@ -379,7 +380,7 @@ class ChatMixin:
         if update:
             chats = await self.request_chats()
             self.add_chats(chats)
-        return self.__saved_chats
+        return self._saved_chats
 
     async def get_chat_by_name(self: Account, name: str, make_request: bool = False) -> types.ChatShortcut | None:
         """
@@ -397,9 +398,9 @@ class ChatMixin:
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
 
-        for i in self.__saved_chats:
-            if self.__saved_chats[i].name == name:
-                return self.__saved_chats[i]
+        for i in self._saved_chats:
+            if self._saved_chats[i].name == name:
+                return self._saved_chats[i]
 
         if make_request:
             self.add_chats(await self.request_chats())
@@ -423,8 +424,8 @@ class ChatMixin:
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
 
-        if not make_request or chat_id in self.__saved_chats:
-            return self.__saved_chats.get(chat_id)
+        if not make_request or chat_id in self._saved_chats:
+            return self._saved_chats.get(chat_id)
 
         self.add_chats(await self.request_chats())
         return await self.get_chat_by_id(chat_id)
@@ -447,7 +448,7 @@ class ChatMixin:
             raise exceptions.AccountNotInitiatedError()
 
         if not locale:
-            locale = self.__chat_parse_locale
+            locale = self._chat_parse_locale
 
         if isinstance(self.client, AsyncClient):
             response = await self.client.get(f"chat/?node={chat_id}", headers={"accept": "*/*"}, locale=locale)
@@ -458,7 +459,7 @@ class ChatMixin:
             raise exceptions.RequestFailedError(response)
 
         if locale:
-            self.locale = self.__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from FunPayAPI.common.parser import parse_chat
@@ -472,4 +473,4 @@ class ChatMixin:
         :type chats: :obj:`list` of :class:`FunPayAPI.types.ChatShortcut`
         """
         for i in chats:
-            self.__saved_chats[i.id] = i
+            self._saved_chats[i.id] = i

@@ -28,7 +28,7 @@ class LotsMixin:
 
         meth = f"lots/{subcategory_id}/" if subcategory_type is enums.SubCategoryTypes.COMMON else f"chips/{subcategory_id}/"
         if not locale:
-            locale = self._Account__lots_parse_locale
+            locale = self._lots_parse_locale
 
         if isinstance(self.client, AsyncClient):
             response = await self.client.get(meth, headers={"accept": "*/*"}, locale=locale)
@@ -39,7 +39,7 @@ class LotsMixin:
             raise exceptions.RequestFailedError(response)
 
         if locale:
-            self.locale = self._Account__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from ..common.parser import parse_subcategory_public_lots
@@ -58,7 +58,7 @@ class LotsMixin:
             raise exceptions.AccountNotInitiatedError()
         meth = f"lots/{subcategory_id}/trade"
         if not locale:
-            locale = self._Account__lots_parse_locale
+            locale = self._lots_parse_locale
 
         if isinstance(self.client, AsyncClient):
             response = await self.client.get(meth, headers={"accept": "*/*"}, locale=locale)
@@ -69,7 +69,7 @@ class LotsMixin:
             raise exceptions.RequestFailedError(response)
 
         if locale:
-            self.locale = self._Account__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from ..common.parser import parse_my_subcategory_lots
@@ -99,7 +99,7 @@ class LotsMixin:
             raise exceptions.RequestFailedError(response)
 
         if locale:
-            self.locale = self._Account__default_locale
+            self.locale = self._default_locale
         html_response = response.text
 
         from ..common.parser import parse_lot_page
@@ -330,10 +330,10 @@ class LotsMixin:
         if not json_response.get("error") and not json_response.get("url"):
             return True
         elif json_response.get("url"):
-            raise exceptions.RaiseError(response, category, json_response.get("url"), 7200)
+            raise exceptions.RaiseError(response, category.name, json_response.get("url"), 7200)
         elif json_response.get("error") and json_response.get("msg") and \
                 any([i in json_response.get("msg") for i in ("Подождите ", "Please wait ", "Зачекайте ")]):
             wait_time = utils.parse_wait_time(json_response.get("msg"))
-            raise exceptions.RaiseError(response, category, json_response.get("msg"), wait_time)
+            raise exceptions.RaiseError(response, category.name, json_response.get("msg"), wait_time)
         else:
-            raise exceptions.RaiseError(response, category, json_response.get("msg"), None)
+            raise exceptions.RaiseError(response, category.name, json_response.get("msg"), None)

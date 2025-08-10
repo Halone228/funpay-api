@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from bs4 import BeautifulSoup
 
-from FunPayAPI.common import types, enums
+from FunPayAPI.common import enums
+from .. import types
 
 if TYPE_CHECKING:
     from FunPayAPI.account import Account
@@ -19,7 +20,7 @@ class CategoriesMixin:
         :return: объект категории (игры) или :obj:`None`, если категория не была найдена.
         :rtype: :class:`FunPayAPI.types.Category` or :obj:`None`
         """
-        return self.__sorted_categories.get(category_id)
+        return self._sorted_categories.get(category_id)
 
     @property
     def categories(self: Account) -> list[types.Category]:
@@ -29,7 +30,7 @@ class CategoriesMixin:
         :return: все категории (игры) FunPay.
         :rtype: :obj:`list` of :class:`FunPayAPI.types.Category`
         """
-        return self.__categories
+        return self._categories
 
     def get_sorted_categories(self: Account) -> dict[int, types.Category]:
         """
@@ -39,7 +40,7 @@ class CategoriesMixin:
         :return: все категории (игры) FunPay в виде словаря {ID: категория}
         :rtype: :obj:`dict` {:obj:`int`: :class:`FunPayAPI.types.Category`}
         """
-        return self.__sorted_categories
+        return self._sorted_categories
 
     def get_subcategory(self: Account, subcategory_type: enums.SubCategoryTypes,
                         subcategory_id: int) -> types.SubCategory | None:
@@ -55,7 +56,7 @@ class CategoriesMixin:
         :return: объект подкатегории или :obj:`None`, если подкатегория не была найдена.
         :rtype: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
         """
-        return self.__sorted_subcategories[subcategory_type].get(subcategory_id)
+        return self._sorted_subcategories[subcategory_type].get(subcategory_id)
 
     @property
     def subcategories(self: Account) -> list[types.SubCategory]:
@@ -65,7 +66,7 @@ class CategoriesMixin:
         :return: все подкатегории FunPay.
         :rtype: :obj:`list` of :class:`FunPayAPI.types.SubCategory`
         """
-        return self.__subcategories
+        return self._subcategories
 
     def get_sorted_subcategories(self: Account) -> dict[enums.SubCategoryTypes, dict[int, types.SubCategory]]:
         """
@@ -75,9 +76,9 @@ class CategoriesMixin:
         :return: все подкатегории FunPay в виде словаря {тип подкатегории: {ID: подкатегория}}
         :rtype: :obj:`dict` {:class:`FunPayAPI.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int` :class:`FunPayAPI.types.SubCategory`}}
         """
-        return self.__sorted_subcategories
+        return self._sorted_subcategories
 
-    def _Account__setup_categories(self: Account, html: str):
+    def _setup_categories(self: Account, html: str):
         """
         Парсит категории и подкатегории с основной страницы и добавляет их в свойства класса.
 
@@ -120,9 +121,9 @@ class CategoriesMixin:
                     sobj = types.SubCategory(sid, name, stype, regional_games[j_game_id], subcategory_position)
                     subcategory_position += 1
                     regional_games[j_game_id].add_subcategory(sobj)
-                    self.__subcategories.append(sobj)
-                    self.__sorted_subcategories[stype][sid] = sobj
+                    self._subcategories.append(sobj)
+                    self._sorted_subcategories[stype][sid] = sobj
 
             for gid in regional_games:
-                self.__categories.append(regional_games[gid])
-                self.__sorted_categories[gid] = regional_games[gid]
+                self._categories.append(regional_games[gid])
+                self._sorted_categories[gid] = regional_games[gid]

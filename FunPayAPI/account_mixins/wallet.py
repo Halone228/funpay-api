@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from FunPayAPI.common import enums, types, utils, exceptions
+from FunPayAPI.common import enums, utils, exceptions
+from .. import types
 from FunPayAPI.common.utils import RegularExpressions, parse_currency
-from FunPayAPI.types import PaymentMethod, CalcResult
+from bs4 import BeautifulSoup
+import json
 from bs4 import BeautifulSoup
 import json
 
