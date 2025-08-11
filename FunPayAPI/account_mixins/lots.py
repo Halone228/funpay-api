@@ -5,7 +5,7 @@ from ..common import exceptions, enums
 from .. import types
 
 if TYPE_CHECKING:
-    from ..account import Account
+    from FunPayAPI.async_account import AsyncAccount as Account
 
 
 class LotsMixin:

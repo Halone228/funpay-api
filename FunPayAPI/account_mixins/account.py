@@ -8,7 +8,7 @@ from FunPayAPI.common import exceptions
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.account import Account
+    from FunPayAPI.async_account import AsyncAccount as Account
 
 PRIVATE_CHAT_ID_RE = re.compile(r"users-\d+-\d+$")
 

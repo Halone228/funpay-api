@@ -1,63 +1,46 @@
 import asyncio
-from FunPayAPI import Account, Runner
-from FunPayAPI.updater.events import NewMessageEvent
-from FunPayAPI.common.exceptions import FunPayAPIError, AccountNotInitiatedError
+from FunPayAPI import AsyncAccount, SyncAccount
+from FunPayAPI.common.exceptions import FunPayAPIError
 
 # NOTE: This is a dummy key and is expected to fail authentication.
 # The purpose of this test is to verify that the code runs without syntax/import errors
-# and raises the correct custom exceptions.
+# and raises the correct custom exceptions for both clients.
 GOLDEN_KEY = "your_golden_key_here"
 
 
-async def test_async_usage():
-    print("--- Testing Asynchronous Usage ---")
-    account = Account(golden_key=GOLDEN_KEY, async_=True)
+async def test_async_client():
+    print("--- Testing AsyncAccount ---")
+    account = AsyncAccount(golden_key=GOLDEN_KEY)
     try:
         await account.get()
         if account.is_initiated:
-            print("Login successful (this should not happen with a dummy key).")
-        else:
-            # This path is unlikely to be hit due to exception, but good to have.
-            print("Failed to log in (as expected).")
+            print("Login successful with AsyncAccount (this should not happen with a dummy key).")
     except FunPayAPIError as e:
-        print(f"Caught expected error: {e}")
+        print(f"AsyncAccount caught expected error: {e}")
     except Exception as e:
-        print(f"An unexpected error occurred during async usage test: {e}")
-    print("--- Asynchronous Usage Test Complete ---\n")
+        print(f"An unexpected error occurred during AsyncAccount test: {e}")
+    print("--- AsyncAccount Test Complete ---\n")
 
 
-async def test_sync_emulation():
-    print("--- Testing Synchronous-Style Usage ---")
-    # This test emulates how a user in a sync context would run a single async command.
-    account = Account(golden_key=GOLDEN_KEY, async_=True)
+def test_sync_client():
+    print("--- Testing SyncAccount ---")
+    account = SyncAccount(golden_key=GOLDEN_KEY)
     try:
-        # The user would wrap the single async call in asyncio.run()
-        await account.get()
+        account.get()
         if account.is_initiated:
-            print("Login successful (this should not happen with a dummy key).")
+            print("Login successful with SyncAccount (this should not happen with a dummy key).")
     except FunPayAPIError as e:
-        print(f"Caught expected error: {e}")
+        print(f"SyncAccount caught expected error: {e}")
     except Exception as e:
-        print(f"An unexpected error occurred during sync emulation test: {e}")
-    print("--- Synchronous-Style Usage Test Complete ---\n")
-
-
-async def test_error_handling():
-    print("--- Testing Error Handling ---")
-    account = Account(golden_key="invalid_key", async_=True)
-    try:
-        await account.get()
-    except FunPayAPIError as e:
-        print(f"Successfully caught expected error: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred during error handling test: {e}")
-    print("--- Error Handling Test Complete ---\n")
+        print(f"An unexpected error occurred during SyncAccount test: {e}")
+    print("--- SyncAccount Test Complete ---\n")
 
 
 async def main():
-    await test_async_usage()
-    await test_sync_emulation()
-    await test_error_handling()
+    await test_async_client()
+    # Run the synchronous test in a separate thread to avoid event loop conflicts
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, test_sync_client)
 
 
 if __name__ == "__main__":

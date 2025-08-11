@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import json
 
 if TYPE_CHECKING:
-    from FunPayAPI.account import Account
+    from FunPayAPI.async_account import AsyncAccount as Account
 
 
 class WalletMixin:

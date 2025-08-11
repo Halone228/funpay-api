@@ -10,7 +10,7 @@ import json
 import time
 
 if TYPE_CHECKING:
-    from FunPayAPI.account import Account
+    from FunPayAPI.async_account import AsyncAccount as Account
 
 
 class ChatMixin:

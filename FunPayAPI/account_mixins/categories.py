@@ -6,7 +6,7 @@ from FunPayAPI.common import enums
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.account import Account
+    from FunPayAPI.async_account import AsyncAccount as Account
 
 
 class CategoriesMixin:

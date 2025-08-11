@@ -32,7 +32,7 @@ from FunPayAPI.account_mixins.orders import OrdersMixin
 from FunPayAPI.account_mixins.wallet import WalletMixin
 
 
-class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, AccountMixin):
+class AsyncAccount(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, AccountMixin):
     """
     Класс для управления аккаунтом FunPay.
 
@@ -54,17 +54,13 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
 
     def __init__(self, golden_key: str, user_agent: str | None = None,
                  requests_timeout: int | float = 10, proxy: Optional[dict] = None,
-                 locale: Literal["ru", "en", "uk"] | None = None,
-                 async_: bool = False):
+                 locale: Literal["ru", "en", "uk"] | None = None):
         self.golden_key: str = golden_key
         """Токен (golden_key) аккаунта."""
         self.user_agent: str | None = user_agent
         """User-agent браузера, с которого был произведен вход в аккаунт."""
 
-        if async_:
-            self.client = AsyncClient(golden_key, user_agent, requests_timeout, proxy, locale)
-        else:
-            self.client = SyncClient(golden_key, user_agent, requests_timeout, proxy, locale)
+        self.client = AsyncClient(golden_key, user_agent, requests_timeout, proxy, locale)
 
         self.html: str | None = None
         """HTML основной страницы FunPay."""
@@ -137,7 +133,7 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         self._old_bot_character = "⁤"
         """Старое значение self._bot_character, для корректной маркировки отправки ботом старых сообщений"""
 
-    async def get(self, update_phpsessid: bool = True) -> Account:
+    async def get(self, update_phpsessid: bool = True) -> "AsyncAccount":
         """
         Получает / обновляет данные об аккаунте. Необходимо вызывать каждые 40-60 минут, дабы обновить
         :py:obj:`.Account.phpsessid`.
@@ -151,17 +147,14 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         if not self.is_initiated:
             self.locale = self._subcategories_parse_locale
 
-        if isinstance(self.client, AsyncClient):
-            response = await self.client.get("https://funpay.com/")
-        else:
-            response = self.client.get("https://funpay.com/")
+        response = await self.client.get("https://funpay.com/")
 
         if response.status_code != 200:
             raise exceptions.RequestFailedError(response)
 
         if not self.is_initiated:
             self.locale = self._default_locale
-        
+
         html_response = response.text
 
         from .common.parser import parse_account_data
@@ -177,5 +170,3 @@ class Account(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, A
         self.html = html_response
         self._initiated = True
         return self
-
-
