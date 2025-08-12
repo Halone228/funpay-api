@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Any, Optional, IO
 
-import FunPayAPI.common.enums
-from FunPayAPI.common.utils import parse_currency, RegularExpressions
+import funpay_api.common.enums
+from funpay_api.common.utils import parse_currency, RegularExpressions
 from .types import PaymentMethod, CalcResult
 
 if TYPE_CHECKING:
@@ -24,12 +24,12 @@ from .client import SyncClient, AsyncClient
 PRIVATE_CHAT_ID_RE = re.compile(r"users-\d+-\d+$")
 
 
-from FunPayAPI.account_mixins.account import AccountMixin
-from FunPayAPI.account_mixins.categories import CategoriesMixin
-from FunPayAPI.account_mixins.chat import ChatMixin
-from FunPayAPI.account_mixins.lots import LotsMixin
-from FunPayAPI.account_mixins.orders import OrdersMixin
-from FunPayAPI.account_mixins.wallet import WalletMixin
+from funpay_api.account_mixins.account import AccountMixin
+from funpay_api.account_mixins.categories import CategoriesMixin
+from funpay_api.account_mixins.chat import ChatMixin
+from funpay_api.account_mixins.lots import LotsMixin
+from funpay_api.account_mixins.orders import OrdersMixin
+from funpay_api.account_mixins.wallet import WalletMixin
 
 
 class AsyncAccount(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMixin, AccountMixin):
@@ -98,7 +98,7 @@ class AsyncAccount(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMix
         """Язык по для получения названий разделов."""
         self._set_locale: Literal["ru", "en", "uk"] | None = None
         """Язык, на который будет переведем аккаунт при следующем GET-запросе."""
-        self.currency: FunPayAPI.types.Currency = FunPayAPI.types.Currency.UNKNOWN
+        self.currency: funpay_api.types.Currency = funpay_api.types.Currency.UNKNOWN
         """Валюта аккаунта"""
         self.total_balance: int | None = None
         """Примерный общий баланс аккаунта в валюте аккаунта."""
@@ -142,7 +142,7 @@ class AsyncAccount(LotsMixin, ChatMixin, OrdersMixin, CategoriesMixin, WalletMix
         :type update_phpsessid: :obj:`bool`, опционально
 
         :return: объект аккаунта с обновленными данными.
-        :rtype: :class:`FunPayAPI.account.Account`
+        :rtype: :class:`funpay_api.account.Account`
         """
         if not self.is_initiated:
             self.locale = self._subcategories_parse_locale

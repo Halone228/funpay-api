@@ -1,6 +1,6 @@
 import asyncio
-from FunPayAPI import AsyncAccount, SyncAccount
-from FunPayAPI.common.exceptions import FunPayAPIError
+from funpay_api import AsyncAccount, SyncAccount
+from funpay_api.common.exceptions import funpay_apiError
 
 # NOTE: This is a dummy key and is expected to fail authentication.
 # The purpose of this test is to verify that the code runs without syntax/import errors
@@ -15,7 +15,7 @@ async def test_async_client():
         await account.get()
         if account.is_initiated:
             print("Login successful with AsyncAccount (this should not happen with a dummy key).")
-    except FunPayAPIError as e:
+    except funpay_apiError as e:
         print(f"AsyncAccount caught expected error: {e}")
     except Exception as e:
         print(f"An unexpected error occurred during AsyncAccount test: {e}")
@@ -29,7 +29,7 @@ def test_sync_client():
         account.get()
         if account.is_initiated:
             print("Login successful with SyncAccount (this should not happen with a dummy key).")
-    except FunPayAPIError as e:
+    except funpay_apiError as e:
         print(f"SyncAccount caught expected error: {e}")
     except Exception as e:
         print(f"An unexpected error occurred during SyncAccount test: {e}")

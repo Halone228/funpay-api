@@ -18,24 +18,24 @@ class Runner:
     """
     Класс для получения новых событий FunPay.
 
-    :param account: экземпляр аккаунта (должен быть инициализирован с помощью метода :meth:`FunPayAPI.account.Account.get`).
-    :type account: :class:`FunPayAPI.account.Account`
+    :param account: экземпляр аккаунта (должен быть инициализирован с помощью метода :meth:`funpay_api.account.Account.get`).
+    :type account: :class:`funpay_api.account.Account`
 
     :param disable_message_requests: отключить ли запросы для получения истории чатов?\n
-        Если `True`, :meth:`FunPayAPI.updater.runner.Runner.listen` не будет возвращать события
-        :class:`FunPayAPI.updater.events.NewMessageEvent`.\n
+        Если `True`, :meth:`funpay_api.updater.runner.Runner.listen` не будет возвращать события
+        :class:`funpay_api.updater.events.NewMessageEvent`.\n
         Из событий, связанных с чатами, будут возвращаться только:\n
-        * :class:`FunPayAPI.updater.events.InitialChatEvent`\n
-        * :class:`FunPayAPI.updater.events.ChatsListChangedEvent`\n
-        * :class:`FunPayAPI.updater.events.LastChatMessageChangedEvent`\n
+        * :class:`funpay_api.updater.events.InitialChatEvent`\n
+        * :class:`funpay_api.updater.events.ChatsListChangedEvent`\n
+        * :class:`funpay_api.updater.events.LastChatMessageChangedEvent`\n
     :type disable_message_requests: :obj:`bool`, опционально
 
     :param disabled_order_requests: отключить ли запросы для получения списка заказов?\n
-        Если `True`, :meth:`FunPayAPI.updater.runner.Runner.listen` не будет возвращать события
-        :class:`FunPayAPI.updater.events.InitialOrderEvent`, :class:`FunPayAPI.updater.events.NewOrderEvent`,
-        :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`.\n
+        Если `True`, :meth:`funpay_api.updater.runner.Runner.listen` не будет возвращать события
+        :class:`funpay_api.updater.events.InitialOrderEvent`, :class:`funpay_api.updater.events.NewOrderEvent`,
+        :class:`funpay_api.updater.events.OrderStatusChangedEvent`.\n
         Из событий, связанных с заказами, будет возвращаться только
-        :class:`FunPayAPI.updater.events.OrdersListChangedEvent`.
+        :class:`funpay_api.updater.events.OrdersListChangedEvent`.
     :type disabled_order_requests: :obj:`bool`, опционально
     """
 
@@ -47,7 +47,7 @@ class Runner:
         if not account.is_initiated:
             raise exceptions.AccountNotInitiatedError()
         if account.runner:
-            raise exceptions.FunPayAPIError("An Account instance can only have one Runner instance.")
+            raise exceptions.funpay_apiError("An Account instance can only have one Runner instance.")
 
         self.make_msg_requests: bool = False if disable_message_requests else True
         """Делать ли доп. запросы для получения всех новых сообщений изменившихся чатов?"""
@@ -141,17 +141,17 @@ class Runner:
         """
         Парсит ответ FunPay и создает события.
 
-        :param updates: результат выполнения :meth:`FunPayAPI.updater.runner.Runner.get_updates`
+        :param updates: результат выполнения :meth:`funpay_api.updater.runner.Runner.get_updates`
         :type updates: :obj:`dict`
 
         :return: список событий.
-        :rtype: :obj:`list` of :class:`FunPayAPI.updater.events.InitialChatEvent`,
-            :class:`FunPayAPI.updater.events.ChatsListChangedEvent`,
-            :class:`FunPayAPI.updater.events.LastChatMessageChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewMessageEvent`, :class:`FunPayAPI.updater.events.InitialOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrdersListChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`
+        :rtype: :obj:`list` of :class:`funpay_api.updater.events.InitialChatEvent`,
+            :class:`funpay_api.updater.events.ChatsListChangedEvent`,
+            :class:`funpay_api.updater.events.LastChatMessageChangedEvent`,
+            :class:`funpay_api.updater.events.NewMessageEvent`, :class:`funpay_api.updater.events.InitialOrderEvent`,
+            :class:`funpay_api.updater.events.OrdersListChangedEvent`,
+            :class:`funpay_api.updater.events.NewOrderEvent`,
+            :class:`funpay_api.updater.events.OrderStatusChangedEvent`
         """
         events = []
         # сортируем в т.ч. для того, корректно реагировало на сообщения покупателей сразу после оплаты (плагины автовыдачи)
@@ -172,15 +172,15 @@ class Runner:
         """
         Парсит события, связанные с чатами.
 
-        :param obj: словарь из результата выполнения :meth:`FunPayAPI.updater.runner.Runner.get_updates`, где
+        :param obj: словарь из результата выполнения :meth:`funpay_api.updater.runner.Runner.get_updates`, где
             "type" == "chat_bookmarks".
         :type obj: :obj:`dict`
 
         :return: список событий, связанных с чатами.
-        :rtype: :obj:list of :class:`FunPayAPI.updater.events.InitialChatEvent`,
-            :class:`FunPayAPI.updater.events.ChatsListChangedEvent`,
-            :class:`FunPayAPI.updater.events.LastChatMessageChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewMessageEvent`
+        :rtype: :obj:list of :class:`funpay_api.updater.events.InitialChatEvent`,
+            :class:`funpay_api.updater.events.ChatsListChangedEvent`,
+            :class:`funpay_api.updater.events.LastChatMessageChangedEvent`,
+            :class:`funpay_api.updater.events.NewMessageEvent`
         """
         events, lcmc_events = [], []
         self.__last_msg_event_tag = obj.get("tag")
@@ -296,7 +296,7 @@ class Runner:
         :type chats_data: :obj:`dict` {:obj:`int`: :obj:`str` or :obj:`None`}
 
         :return: словарь с событиями новых сообщений в формате {ID чата: [список событий]}
-        :rtype: :obj:`dict` {:obj:`int`: :obj:`list` of :class:`FunPayAPI.updater.events.NewMessageEvent`}
+        :rtype: :obj:`dict` {:obj:`int`: :obj:`list` of :class:`funpay_api.updater.events.NewMessageEvent`}
         """
         attempts = 3
         while attempts:
@@ -357,15 +357,15 @@ class Runner:
         """
         Парсит события, связанные с продажами.
 
-        :param obj: словарь из результата выполнения :meth:`FunPayAPI.updater.runner.Runner.get_updates`, где
+        :param obj: словарь из результата выполнения :meth:`funpay_api.updater.runner.Runner.get_updates`, где
             "type" == "orders_counters".
         :type obj: :obj:`dict`
 
         :return: список событий, связанных с продажами.
-        :rtype: :obj:`list` of :class:`FunPayAPI.updater.events.InitialOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrdersListChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`
+        :rtype: :obj:`list` of :class:`funpay_api.updater.events.InitialOrderEvent`,
+            :class:`funpay_api.updater.events.OrdersListChangedEvent`,
+            :class:`funpay_api.updater.events.NewOrderEvent`,
+            :class:`funpay_api.updater.events.OrderStatusChangedEvent`
         """
         events = []
         self.__last_order_event_tag = obj.get("tag")
@@ -427,7 +427,7 @@ class Runner:
 
     def mark_as_by_bot(self, chat_id: int, message_id: int):
         """
-        Помечает сообщение с переданным ID, как отправленный с помощью :meth:`FunPayAPI.account.Account.send_message`.
+        Помечает сообщение с переданным ID, как отправленный с помощью :meth:`funpay_api.account.Account.send_message`.
 
         :param chat_id: ID чата.
         :type chat_id: :obj:`int`
@@ -455,13 +455,13 @@ class Runner:
         :type ignore_exceptions: :obj:`bool`, опционально
 
         :return: генератор событий FunPay.
-        :rtype: :obj:`Generator` of :class:`FunPayAPI.updater.events.InitialChatEvent`,
-            :class:`FunPayAPI.updater.events.ChatsListChangedEvent`,
-            :class:`FunPayAPI.updater.events.LastChatMessageChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewMessageEvent`, :class:`FunPayAPI.updater.events.InitialOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrdersListChangedEvent`,
-            :class:`FunPayAPI.updater.events.NewOrderEvent`,
-            :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`
+        :rtype: :obj:`Generator` of :class:`funpay_api.updater.events.InitialChatEvent`,
+            :class:`funpay_api.updater.events.ChatsListChangedEvent`,
+            :class:`funpay_api.updater.events.LastChatMessageChangedEvent`,
+            :class:`funpay_api.updater.events.NewMessageEvent`, :class:`funpay_api.updater.events.InitialOrderEvent`,
+            :class:`funpay_api.updater.events.OrdersListChangedEvent`,
+            :class:`funpay_api.updater.events.NewOrderEvent`,
+            :class:`funpay_api.updater.events.OrderStatusChangedEvent`
         """
         events = []
         while True:

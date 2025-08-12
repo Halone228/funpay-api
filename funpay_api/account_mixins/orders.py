@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Optional
 
-from FunPayAPI.common import exceptions, utils
+from funpay_api.common import exceptions, utils
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 
 class OrdersMixin:
@@ -132,7 +132,7 @@ class OrdersMixin:
         :type order_id: :obj:`str`
 
         :return: объекст заказа.
-        :rtype: :class:`FunPayAPI.types.OrderShortcut`
+        :rtype: :class:`funpay_api.types.OrderShortcut`
         """
         # todo взаимодействие с покупками
         sales = await self.get_sales(id=order_id)
@@ -146,7 +146,7 @@ class OrdersMixin:
         :type order_id: :obj:`str`
 
         :return: объекст заказа.
-        :rtype: :class:`FunPayAPI.types.Order`
+        :rtype: :class:`funpay_api.types.Order`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -168,7 +168,7 @@ class OrdersMixin:
             self.locale = self._default_locale
         html_response = response.text
 
-        from FunPayAPI.common.parser import parse_order
+        from funpay_api.common.parser import parse_order
         return parse_order(html_response, self, order_id)
 
     async def get_sales(self: Account, start_from: str | None = None, include_paid: bool = True, include_closed: bool = True,
@@ -225,7 +225,7 @@ class OrdersMixin:
         :param more_filters: доп. фильтры.
 
         :return: (ID след. заказа (для start_from), список заказов)
-        :rtype: :obj:`tuple` (:obj:`str` or :obj:`None`, :obj:`list` of :class:`FunPayAPI.types.OrderShortcut`)
+        :rtype: :obj:`tuple` (:obj:`str` or :obj:`None`, :obj:`list` of :class:`funpay_api.types.OrderShortcut`)
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -259,7 +259,7 @@ class OrdersMixin:
             self.locale = self._default_locale
         html_response = response.text
 
-        from FunPayAPI.common.parser import parse_sales
+        from funpay_api.common.parser import parse_sales
         return parse_sales(html_response, self, include_paid, include_closed, include_refunded, exclude_ids, start_from)
 
     async def get_sells(self: Account, start_from: str | None = None, include_paid: bool = True, include_closed: bool = True,

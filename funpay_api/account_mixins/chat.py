@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Optional, IO
 
-from FunPayAPI.common import exceptions, utils
+from funpay_api.common import exceptions, utils
 from .. import types
-from FunPayAPI.client import AsyncClient
+from funpay_api.client import AsyncClient
 from bs4 import BeautifulSoup
 from loguru import logger
 import json
 import time
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 
 class ChatMixin:
@@ -33,7 +33,7 @@ class ChatMixin:
         :type from_id: :obj:`int`, опционально.
 
         :return: история указанного чата.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.Message`
+        :rtype: :obj:`list` of :class:`funpay_api.types.Message`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -52,7 +52,7 @@ class ChatMixin:
             raise exceptions.RequestFailedError(response)
 
         json_response = response.json()
-        from FunPayAPI.common.parser import parse_chat_history
+        from funpay_api.common.parser import parse_chat_history
         return parse_chat_history(json_response, self, chat_id, interlocutor_username, from_id)
 
     async def get_chats_histories(self: Account, chats_data: dict[int | str, str | None],
@@ -67,7 +67,7 @@ class ChatMixin:
         :type chats_data: :obj:`dict` {:obj:`int` or :obj:`str`: :obj:`str` or :obj:`None`}
 
         :return: словарь с историями чатов в формате {ID чата: [список сообщений]}
-        :rtype: :obj:`dict` {:obj:`int`: :obj:`list` of :class:`FunPayAPI.types.Message`}
+        :rtype: :obj:`dict` {:obj:`int`: :obj:`list` of :class:`funpay_api.types.Message`}
         """
         headers = {
             "accept": "*/*",
@@ -95,13 +95,13 @@ class ChatMixin:
 
         json_response = response.json()
 
-        from FunPayAPI.common.parser import parse_chats_histories
+        from funpay_api.common.parser import parse_chats_histories
         return parse_chats_histories(json_response, self, chats_data)
 
     async def upload_image(self: Account, image: str | IO[bytes], type_: Literal["chat", "offer"] = "chat") -> int:
         """
         Выгружает изображение на сервер FunPay для дальнейшей отправки в качестве сообщения.
-        Для отправки изображения в чат рекомендуется использовать метод :meth:`FunPayAPI.account.Account.send_image`.
+        Для отправки изображения в чат рекомендуется использовать метод :meth:`funpay_api.account.Account.send_image`.
 
         :param image: путь до изображения или представление изображения в виде байтов.
         :type image: :obj:`str` or :obj:`bytes`
@@ -179,7 +179,7 @@ class ChatMixin:
         :type leave_as_unread: :obj:`bool`, опционально
 
         :return: экземпляр отправленного сообщения.
-        :rtype: :class:`FunPayAPI.types.Message`
+        :rtype: :class:`funpay_api.types.Message`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -290,7 +290,7 @@ class ChatMixin:
 
         :param image: ID изображения / путь до изображения / изображение в виде байтов.
             Если передан путь до изображения или представление изображения в виде байтов, сначала оно будет выгружено
-            с помощью метода :meth:`FunPayAPI.account.Account.upload_image`.
+            с помощью метода :meth:`funpay_api.account.Account.upload_image`.
         :type image: :obj:`int` or :obj:`str` or :obj:`bytes`
 
         :param chat_name: Название чата (никнейм собеседника). Нужен для возвращаемого объекта.
@@ -309,7 +309,7 @@ class ChatMixin:
         :type leave_as_unread: :obj:`bool`, опционально
 
         :return: объект отправленного сообщения.
-        :rtype: :class:`FunPayAPI.types.Message`
+        :rtype: :class:`funpay_api.types.Message`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -326,7 +326,7 @@ class ChatMixin:
         Запрашивает чаты и парсит их.
 
         :return: объекты чатов (не больше 50).
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.ChatShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.ChatShortcut`
         """
         chats = {
             "type": "chat_bookmarks",
@@ -362,7 +362,7 @@ class ChatMixin:
         if not msgs:
             return []
 
-        from FunPayAPI.common.parser import parse_chats
+        from funpay_api.common.parser import parse_chats
         return parse_chats(msgs, self)
 
     async def get_chats(self: Account, update: bool = False) -> dict[int, types.ChatShortcut]:
@@ -393,7 +393,7 @@ class ChatMixin:
         :type make_request: :obj:`bool`, опционально
 
         :return: объект чата или :obj:`None`, если чат не был найден.
-        :rtype: :class:`FunPayAPI.types.ChatShortcut` or :obj:`None`
+        :rtype: :class:`funpay_api.types.ChatShortcut` or :obj:`None`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -419,7 +419,7 @@ class ChatMixin:
         :type make_request: :obj:`bool`, опционально
 
         :return: объект чата или :obj:`None`, если чат не был найден.
-        :rtype: :class:`FunPayAPI.types.ChatShortcut` or :obj:`None`
+        :rtype: :class:`funpay_api.types.ChatShortcut` or :obj:`None`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -442,7 +442,7 @@ class ChatMixin:
         :type with_history: :obj:`bool`
 
         :return: объект чата.
-        :rtype: :class:`FunPayAPI.types.Chat`
+        :rtype: :class:`funpay_api.types.Chat`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -462,7 +462,7 @@ class ChatMixin:
             self.locale = self._default_locale
         html_response = response.text
 
-        from FunPayAPI.common.parser import parse_chat
+        from funpay_api.common.parser import parse_chat
         return parse_chat(html_response, self, chat_id, with_history)
 
     def add_chats(self: Account, chats: list[types.ChatShortcut]):
@@ -470,7 +470,7 @@ class ChatMixin:
         Сохраняет чаты.
 
         :param chats: объекты чатов.
-        :type chats: :obj:`list` of :class:`FunPayAPI.types.ChatShortcut`
+        :type chats: :obj:`list` of :class:`funpay_api.types.ChatShortcut`
         """
         for i in chats:
             self._saved_chats[i.id] = i

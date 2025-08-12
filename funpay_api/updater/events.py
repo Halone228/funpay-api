@@ -13,7 +13,7 @@ class BaseEvent:
     :type runner_tag: :obj:`str`
 
     :param event_type: тип события.
-    :type event_type: :class:`FunPayAPI.common.enums.EventTypes`
+    :type event_type: :class:`funpay_api.common.enums.EventTypes`
 
     :param event_time: время события (лучше не указывать, будет генерироваться автоматически).
     :type event_time: :obj:`int` or :obj:`float` or :obj:`None`, опционально.
@@ -32,7 +32,7 @@ class InitialChatEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param chat_obj: объект обнаруженного чата.
-    :type chat_obj: :class:`FunPayAPI.types.ChatShortcut`
+    :type chat_obj: :class:`funpay_api.types.ChatShortcut`
     """
     def __init__(self, runner_tag: str, chat_obj: types.ChatShortcut):
         super(InitialChatEvent, self).__init__(runner_tag, EventTypes.INITIAL_CHAT)
@@ -60,7 +60,7 @@ class LastChatMessageChangedEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param chat_obj: объект чата, в котором изменилось последнее сообщение.
-    :type chat_obj: :class:`FunPayAPI.types.ChatShortcut`
+    :type chat_obj: :class:`funpay_api.types.ChatShortcut`
     """
     def __init__(self, runner_tag: str, chat_obj: types.ChatShortcut):
         super(LastChatMessageChangedEvent, self).__init__(runner_tag, EventTypes.LAST_CHAT_MESSAGE_CHANGED)
@@ -76,10 +76,10 @@ class NewMessageEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param message_obj: объект нового сообщения.
-    :type message_obj: :class:`FunPayAPI.types.Message`
+    :type message_obj: :class:`funpay_api.types.Message`
 
     :param stack: объект стэка событий новых собщений.
-    :type stack: :class:`FunPayAPI.updater.events.MessageEventsStack` or :obj:`None`, опционально
+    :type stack: :class:`funpay_api.updater.events.MessageEventsStack` or :obj:`None`, опционально
     """
     def __init__(self, runner_tag: str, message_obj: types.Message, stack: MessageEventsStack | None = None):
         super(NewMessageEvent, self).__init__(runner_tag, EventTypes.NEW_MESSAGE)
@@ -103,7 +103,7 @@ class MessageEventsStack:
         Добавляет события новых сообщений в стэк.
 
         :param messages: список событий новых сообщений.
-        :type messages: :obj:`list` of :class:`FunPayAPI.updater.events.NewMessageEvent`
+        :type messages: :obj:`list` of :class:`funpay_api.updater.events.NewMessageEvent`
         """
         self.__stack.extend(messages)
 
@@ -112,7 +112,7 @@ class MessageEventsStack:
         Возвращает стэк событий новых сообщений.
 
         :return: стэк событий новых сообщений.
-        :rtype: :obj:`list` of :class:`FunPayAPI.updater.events.NewMessageEvent`
+        :rtype: :obj:`list` of :class:`funpay_api.updater.events.NewMessageEvent`
         """
         return self.__stack
 
@@ -134,7 +134,7 @@ class InitialOrderEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param order_obj: объект обнаруженного заказа.
-    :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
+    :type order_obj: :class:`funpay_api.types.OrderShortcut`
     """
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
         super(InitialOrderEvent, self).__init__(runner_tag, EventTypes.INITIAL_ORDER)
@@ -171,7 +171,7 @@ class NewOrderEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param order_obj: объект нового заказа.
-    :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
+    :type order_obj: :class:`funpay_api.types.OrderShortcut`
     """
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
         super(NewOrderEvent, self).__init__(runner_tag, EventTypes.NEW_ORDER)
@@ -187,7 +187,7 @@ class OrderStatusChangedEvent(BaseEvent):
     :type runner_tag: :obj:`str`
 
     :param order_obj: объект измененного заказа.
-    :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
+    :type order_obj: :class:`funpay_api.types.OrderShortcut`
     """
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
         super(OrderStatusChangedEvent, self).__init__(runner_tag, EventTypes.ORDER_STATUS_CHANGED)

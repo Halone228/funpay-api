@@ -2,11 +2,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from bs4 import BeautifulSoup
 
-from FunPayAPI.common import enums
+from funpay_api.common import enums
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 
 class CategoriesMixin:
@@ -18,27 +18,27 @@ class CategoriesMixin:
         :type category_id: :obj:`int`
 
         :return: объект категории (игры) или :obj:`None`, если категория не была найдена.
-        :rtype: :class:`FunPayAPI.types.Category` or :obj:`None`
+        :rtype: :class:`funpay_api.types.Category` or :obj:`None`
         """
         return self._sorted_categories.get(category_id)
 
     @property
     def categories(self: Account) -> list[types.Category]:
         """
-        Возвращает все категории (игры) FunPay (парсятся при первом выполнении метода :meth:`FunPayAPI.account.Account.get`).
+        Возвращает все категории (игры) FunPay (парсятся при первом выполнении метода :meth:`funpay_api.account.Account.get`).
 
         :return: все категории (игры) FunPay.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.Category`
+        :rtype: :obj:`list` of :class:`funpay_api.types.Category`
         """
         return self._categories
 
     def get_sorted_categories(self: Account) -> dict[int, types.Category]:
         """
         Возвращает все категории (игры) FunPay в виде словаря {ID: категория}
-        (парсятся при первом выполнении метода :meth:`FunPayAPI.account.Account.get`).
+        (парсятся при первом выполнении метода :meth:`funpay_api.account.Account.get`).
 
         :return: все категории (игры) FunPay в виде словаря {ID: категория}
-        :rtype: :obj:`dict` {:obj:`int`: :class:`FunPayAPI.types.Category`}
+        :rtype: :obj:`dict` {:obj:`int`: :class:`funpay_api.types.Category`}
         """
         return self._sorted_categories
 
@@ -48,13 +48,13 @@ class CategoriesMixin:
         Возвращает объект подкатегории.
 
         :param subcategory_type: тип подкатегории.
-        :type subcategory_type: :class:`FunPayAPI.common.enums.SubCategoryTypes`
+        :type subcategory_type: :class:`funpay_api.common.enums.SubCategoryTypes`
 
         :param subcategory_id: ID подкатегории.
         :type subcategory_id: :obj:`int`
 
         :return: объект подкатегории или :obj:`None`, если подкатегория не была найдена.
-        :rtype: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
+        :rtype: :class:`funpay_api.types.SubCategory` or :obj:`None`
         """
         return self._sorted_subcategories[subcategory_type].get(subcategory_id)
 
@@ -64,7 +64,7 @@ class CategoriesMixin:
         Возвращает все подкатегории FunPay (парсятся при первом выполнении метода Account.get).
 
         :return: все подкатегории FunPay.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.SubCategory`
+        :rtype: :obj:`list` of :class:`funpay_api.types.SubCategory`
         """
         return self._subcategories
 
@@ -74,7 +74,7 @@ class CategoriesMixin:
         (парсятся при первом выполнении метода Account.get).
 
         :return: все подкатегории FunPay в виде словаря {тип подкатегории: {ID: подкатегория}}
-        :rtype: :obj:`dict` {:class:`FunPayAPI.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int` :class:`FunPayAPI.types.SubCategory`}}
+        :rtype: :obj:`dict` {:class:`funpay_api.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int` :class:`funpay_api.types.SubCategory`}}
         """
         return self._sorted_subcategories
 

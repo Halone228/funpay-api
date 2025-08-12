@@ -1,12 +1,12 @@
 """
-В данном модуле описаны все типы пакета FunPayAPI
+В данном модуле описаны все типы пакета funpay_api
 """
 from __future__ import annotations
 
 import re
 from typing import Literal, overload, Optional
 
-import FunPayAPI.common.enums
+import funpay_api.common.enums
 from .common.utils import RegularExpressions
 from .common.enums import MessageTypes, OrderStatuses, SubCategoryTypes, Currency
 import datetime
@@ -83,7 +83,7 @@ class ChatShortcut(BaseOrderInfo):
         регулярных выражений.
 
         :return: тип последнего сообщения.
-        :rtype: :class:`FunPayAPI.common.enums.MessageTypes`
+        :rtype: :class:`funpay_api.common.enums.MessageTypes`
         """
         res = RegularExpressions()
         if res.DISCORD.search(self.last_message_text):
@@ -164,7 +164,7 @@ class Chat:
     :type html: :obj:`str`
 
     :param messages: последние 100 сообщений чата.
-    :type messages: :obj:`list` of :class:`FunPayAPI.types.Message` or :obj:`None`
+    :type messages: :obj:`list` of :class:`funpay_api.types.Message` or :obj:`None`
     """
 
     def __init__(self, id_: int, name: str, looking_link: str | None, looking_text: str | None,
@@ -245,7 +245,7 @@ class Message(BaseOrderInfo):
         self.image_name: str | None = image_name
         """Название изображения (если оно есть)."""
         self.by_bot: bool = False
-        """Отправлено ли сообщение с помощью :meth:`FunPayAPI.Account.send_message`?"""
+        """Отправлено ли сообщение с помощью :meth:`funpay_api.Account.send_message`?"""
         self.by_vertex: bool = False
         """Отправлено ли сообщение через FunPay Vertex?"""
         self.badge: str | None = badge_text
@@ -281,7 +281,7 @@ class Message(BaseOrderInfo):
         Рекомендуется делать проверку на author_id == 0.
 
         :return: тип последнего сообщения в чате.
-        :rtype: :class:`FunPayAPI.common.enums.MessageTypes`
+        :rtype: :class:`funpay_api.common.enums.MessageTypes`
         """
         if not self.text:
             return MessageTypes.NON_SYSTEM
@@ -338,7 +338,7 @@ class OrderShortcut(BaseOrderInfo):
     :type price: :obj:`float`
 
     :param currency: валюта заказа.
-    :type currency: :class:`FunPayAPI.common.enums.Currency`
+    :type currency: :class:`funpay_api.common.enums.Currency`
 
     :param buyer_username: никнейм покупателя.
     :type buyer_username: :obj:`str`
@@ -350,7 +350,7 @@ class OrderShortcut(BaseOrderInfo):
     :type chat_id: :obj:`int` or :obj:`str`
 
     :param status: статус заказа.
-    :type status: :class:`FunPayAPI.common.enums.OrderStatuses`
+    :type status: :class:`funpay_api.common.enums.OrderStatuses`
 
     :param date: дата создания заказа.
     :type date: :class:`datetime.datetime`
@@ -359,7 +359,7 @@ class OrderShortcut(BaseOrderInfo):
     :type subcategory_name: :obj:`str`
 
     :param subcategory: подкатегория, к которой относится заказ.
-    :type subcategory: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
+    :type subcategory: :class:`funpay_api.types.SubCategory` or :obj:`None`
 
     :param html: HTML код виджета заказа.
     :type html: :obj:`str`
@@ -425,10 +425,10 @@ class Order:
     :type id_: :obj:`str`
 
     :param status: статус заказа.
-    :type status: :class:`FunPayAPI.common.enums.OrderStatuses`
+    :type status: :class:`funpay_api.common.enums.OrderStatuses`
 
     :param subcategory: подкатегория, к которой относится заказ.
-    :type subcategory: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
+    :type subcategory: :class:`funpay_api.types.SubCategory` or :obj:`None`
 
     :param lot_params: параметры лота (значения некоторых полей заказа).
     :type lot_params: :obj:`list`
@@ -443,7 +443,7 @@ class Order:
     :type sum_: :obj:`float`
 
     :param currency: валюта заказа.
-    :type currency: :class:`FunPayAPI.common.enums.Currency`
+    :type currency: :class:`funpay_api.common.enums.Currency`
 
     :param buyer_id: ID покупателя.
     :type buyer_id: :obj:`int`
@@ -464,7 +464,7 @@ class Order:
     :type html: :obj:`str`
 
     :param review: объект отзыва на заказ.
-    :type review: :class:`FunPayAPI.types.Review` or :obj:`None`
+    :type review: :class:`funpay_api.types.Review` or :obj:`None`
 
     :param order_secrets: cписок товаров автовыдачи FunPay.
     :type order_secrets: :obj:`list` of :obj:`str`
@@ -566,7 +566,7 @@ class Category:
     :type name: :obj:`str`
 
     :param subcategories: подкатегории.
-    :type subcategories: :obj:`list` of :class:`FunPayAPI.types.SubCategory` or :obj:`None`, опционально
+    :type subcategories: :obj:`list` of :class:`funpay_api.types.SubCategory` or :obj:`None`, опционально
     """
 
     def __init__(self, id_: int, name: str, subcategories: list[SubCategory] | None = None, position: int = 100_000):
@@ -590,7 +590,7 @@ class Category:
         Добавляет подкатегорию в список подкатегорий.
 
         :param subcategory: объект подкатегории.
-        :type subcategory: :class:`FunPayAPI.types.SubCategory`
+        :type subcategory: :class:`funpay_api.types.SubCategory`
         """
         if subcategory not in self.__subcategories:
             self.__subcategories.append(subcategory)
@@ -601,13 +601,13 @@ class Category:
         Возвращает объект подкатегории.
 
         :param subcategory_type: тип подкатегории.
-        :type subcategory_type: :class:`FunPayAPI.common.enums.SubCategoryTypes`
+        :type subcategory_type: :class:`funpay_api.common.enums.SubCategoryTypes`
 
         :param subcategory_id: ID подкатегории.
         :type subcategory_id: :obj:`int`
 
         :return: объект подкатегории или None, если подкатегория не найдена.
-        :rtype: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
+        :rtype: :class:`funpay_api.types.SubCategory` or :obj:`None`
         """
         return self.__sorted_subcategories[subcategory_type].get(subcategory_id)
 
@@ -616,7 +616,7 @@ class Category:
         Возвращает все подкатегории данной категории (игры).
 
         :return: все подкатегории данной категории (игры).
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.SubCategory`
+        :rtype: :obj:`list` of :class:`funpay_api.types.SubCategory`
         """
         return self.__subcategories
 
@@ -625,7 +625,7 @@ class Category:
         Возвращает все подкатегории данной категории (игры) в виде словаря {type: {ID: подкатегория}}.
 
         :return: все подкатегории данной категории (игры) в виде словаря {type: ID: подкатегория}}.
-        :rtype: :obj:`dict` {:class:`FunPayAPI.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int`, :class:`FunPayAPI.types.SubCategory`}}
+        :rtype: :obj:`dict` {:class:`funpay_api.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int`, :class:`funpay_api.types.SubCategory`}}
         """
         return self.__sorted_subcategories
 
@@ -641,10 +641,10 @@ class SubCategory:
     :type name: :obj:`str`
 
     :param type_: тип лотов подкатегории.
-    :type type_: :class:`FunPayAPI.common.enums.SubCategoryTypes`
+    :type type_: :class:`funpay_api.common.enums.SubCategoryTypes`
 
     :param category: родительская категория (игра).
-    :type category: :class:`FunPayAPI.types.Category`
+    :type category: :class:`funpay_api.types.Category`
     """
 
     def __init__(self, id_: int, name: str, type_: SubCategoryTypes, category: Category, position: int = 100_000):
@@ -678,10 +678,10 @@ class LotFields:
     :type fields: :obj:`dict`
 
     :param subcategory: подкатегория, к которой относится лот.
-    :type subcategory: :class:`FunPayAPI.types.SubCategory` or :obj:`None`
+    :type subcategory: :class:`funpay_api.types.SubCategory` or :obj:`None`
 
     :param currency: валюта лота.
-    :type currency: :class:`FunPayAPI.common.enums.Currency`
+    :type currency: :class:`funpay_api.common.enums.Currency`
     """
 
     def __init__(self, lot_id: int, fields: dict, subcategory: SubCategory | None = None,
@@ -760,12 +760,12 @@ class LotFields:
 
     def renew_fields(self) -> LotFields:
         """
-        Обновляет :py:obj:`~__fields` (возвращается в методе :meth:`FunPayAPI.types.LotFields.get_fields`),
+        Обновляет :py:obj:`~__fields` (возвращается в методе :meth:`funpay_api.types.LotFields.get_fields`),
         основываясь на свойствах экземпляра.
         Необходимо вызвать перед сохранением лота на FunPay после изменения любого свойства экземпляра.
 
-        :return: экземпляр класса :class:`FunPayAPI.types.LotFields` с новыми полями лота.
-        :rtype: :class:`FunPayAPI.types.LotFields`
+        :return: экземпляр класса :class:`funpay_api.types.LotFields` с новыми полями лота.
+        :rtype: :class:`funpay_api.types.LotFields`
         """
         self.__fields["offer_id"] = str(self.lot_id or 0)
         self.__fields["fields[summary][ru]"] = self.title_ru
@@ -829,12 +829,12 @@ class ChipFields:
 
     def renew_fields(self) -> ChipFields:
         """
-        Обновляет :py:obj:`~__fields` (возвращается в методе :meth:`FunPayAPI.types.ChipFields.get_fields`),
+        Обновляет :py:obj:`~__fields` (возвращается в методе :meth:`funpay_api.types.ChipFields.get_fields`),
         основываясь на свойствах экземпляра.
         Необходимо вызвать перед сохранением лота на FunPay после изменения любого свойства экземпляра.
 
-        :return: экземпляр класса :class:`FunPayAPI.types.ChipFields` с новыми полями лота.
-        :rtype: :class:`FunPayAPI.types.ChipFields`
+        :return: экземпляр класса :class:`funpay_api.types.ChipFields` с новыми полями лота.
+        :rtype: :class:`funpay_api.types.ChipFields`
         """
         self.__fields["game"] = str(self.game_id)
         self.__fields["chip"] = str(self.subcategory_id)
@@ -960,10 +960,10 @@ class LotShortcut:
     :type price: :obj:`float`
 
     :param currency: валюта лота.
-    :type currency: :class:`FunPayAPI.common.enums.Currency`
+    :type currency: :class:`funpay_api.common.enums.Currency`
 
     :param subcategory: подкатегория лота.
-    :type subcategory: :class:`FunPayAPI.types.SubCategory`
+    :type subcategory: :class:`funpay_api.types.SubCategory`
 
     :param html: HTML код виджета лота.
     :type html: :obj:`str`
@@ -1024,10 +1024,10 @@ class MyLotShortcut:
     :type price: :obj:`float`
 
     :param currency: валюта лота.
-    :type currency: :class:`FunPayAPI.common.enums.Currency`
+    :type currency: :class:`funpay_api.common.enums.Currency`
 
     :param subcategory: подкатегория лота.
-    :type subcategory: :class:`FunPayAPI.types.SubCategory`
+    :type subcategory: :class:`funpay_api.types.SubCategory`
 
     :param html: HTML код виджета лота.
     :type html: :obj:`str`
@@ -1119,7 +1119,7 @@ class UserProfile:
         :type lot_id: :obj:`int` or :obj:`str`
 
         :return: объект лота со страницы пользователя или `None`, если объект не найден.
-        :rtype: :class:`FunPayAPI.types.LotShortcut` or :obj:`None`
+        :rtype: :class:`funpay_api.types.LotShortcut` or :obj:`None`
         """
         if isinstance(lot_id, str) and lot_id.isnumeric():
             return self.__lots_ids.get(int(lot_id))
@@ -1130,7 +1130,7 @@ class UserProfile:
         Возвращает список всех лотов пользователя.
 
         :return: список всех лотов пользователя.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.LotShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.LotShortcut`
         """
         return list(self.__lots_ids.values())
 
@@ -1158,9 +1158,9 @@ class UserProfile:
             3 - {тип лота: {ID: лот}}
 
         :return: список всех лотов пользователя в виде словаря.
-        :rtype: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`FunPayAPI.types.LotShortcut`} (`mode==1`) \n
-            :obj:`dict` {:class:`FunPayAPI.types.SubCategory`: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`FunPayAPI.types.LotShortcut`}} (`mode==2`) \n
-            :obj:`dict` {:class:`FunPayAPI.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`FunPayAPI.types.LotShortcut`}} (`mode==3`)
+        :rtype: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`funpay_api.types.LotShortcut`} (`mode==1`) \n
+            :obj:`dict` {:class:`funpay_api.types.SubCategory`: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`funpay_api.types.LotShortcut`}} (`mode==2`) \n
+            :obj:`dict` {:class:`funpay_api.common.enums.SubCategoryTypes`: :obj:`dict` {:obj:`int` or :obj:`str`: :class:`funpay_api.types.LotShortcut`}} (`mode==3`)
         """
         if mode == 1:
             return self.__lots_ids
@@ -1196,7 +1196,7 @@ class UserProfile:
         Возвращает список стандартных лотов со страницы пользователя.
 
         :return: Список стандартных лотов со страницы пользователя.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.LotShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.LotShortcut`
         """
         return list(self.__sorted_by_subcategory_type_lots[SubCategoryTypes.COMMON].values())
 
@@ -1205,7 +1205,7 @@ class UserProfile:
         Возвращает список лотов-валют со страницы пользователя.
 
         :return: список лотов-валют со страницы пользователя.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.LotShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.LotShortcut`
         """
         return list(self.__sorted_by_subcategory_type_lots[SubCategoryTypes.CURRENCY].values())
 

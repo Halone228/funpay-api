@@ -4,7 +4,7 @@ from enum import Enum
 
 class EventTypes(Enum):
     """
-    В данном классе перечислены все типы событий FunPayAPI.
+    В данном классе перечислены все типы событий funpay_api.
     """
     INITIAL_CHAT = 0
     """Обнаружен чат (при первом запросе Runner'а)."""

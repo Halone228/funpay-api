@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Literal
 from bs4 import BeautifulSoup
 import re
 
-from FunPayAPI.common import exceptions
+from funpay_api.common import exceptions
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 PRIVATE_CHAT_ID_RE = re.compile(r"users-\d+-\d+$")
 
@@ -28,7 +28,7 @@ class AccountMixin:
     @property
     def is_initiated(self: Account) -> bool:
         """
-        Инициализирован ли класс :class:`FunPayAPI.account.Account` с помощью метода :meth:`FunPayAPI.account.Account.get`?
+        Инициализирован ли класс :class:`funpay_api.account.Account` с помощью метода :meth:`funpay_api.account.Account.get`?
 
         :return: :obj:`True`, если да, :obj:`False`, если нет.
         :rtype: :obj:`bool`
@@ -81,7 +81,7 @@ class AccountMixin:
         :type user_id: :obj:`int`
 
         :return: объект профиля пользователя.
-        :rtype: :class:`FunPayAPI.types.UserProfile`
+        :rtype: :class:`funpay_api.types.UserProfile`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -100,5 +100,5 @@ class AccountMixin:
             self.locale = self._default_locale
         html_response = response.text
 
-        from FunPayAPI.common.parser import parse_user_profile
+        from funpay_api.common.parser import parse_user_profile
         return parse_user_profile(html_response, self, user_id)

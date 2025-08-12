@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from FunPayAPI.common import enums, utils, exceptions
+from funpay_api.common import enums, utils, exceptions
 from .. import types
-from FunPayAPI.common.utils import RegularExpressions, parse_currency
+from funpay_api.common.utils import RegularExpressions, parse_currency
 from bs4 import BeautifulSoup
 import json
 from bs4 import BeautifulSoup
 import json
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 
 class WalletMixin:
@@ -19,10 +19,10 @@ class WalletMixin:
         Отправляет запрос на вывод средств.
 
         :param currency: валюта.
-        :type currency: :class:`FunPayAPI.common.enums.Currency`
+        :type currency: :class:`funpay_api.common.enums.Currency`
 
         :param wallet: тип кошелька.
-        :type wallet: :class:`FunPayAPI.common.enums.Wallet`
+        :type wallet: :class:`funpay_api.common.enums.Wallet`
 
         :param amount: кол-во средств.
         :type amount: :obj:`int` or :obj:`float`
@@ -79,7 +79,7 @@ class WalletMixin:
         :type lot_id: :obj:`int`, опционально
 
         :return: информацию о балансе пользователя.
-        :rtype: :class:`FunPayAPI.types.Balance`
+        :rtype: :class:`funpay_api.types.Balance`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -94,7 +94,7 @@ class WalletMixin:
 
         html_response = response.text
 
-        from FunPayAPI.common.parser import parse_balance
+        from funpay_api.common.parser import parse_balance
         return parse_balance(html_response, self)
 
     async def calc(self: Account, subcategory_type: enums.SubCategoryTypes, subcategory_id: int | None = None,

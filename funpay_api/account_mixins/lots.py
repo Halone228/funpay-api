@@ -5,7 +5,7 @@ from ..common import exceptions, enums
 from .. import types
 
 if TYPE_CHECKING:
-    from FunPayAPI.async_account import AsyncAccount as Account
+    from funpay_api.async_account import AsyncAccount as Account
 
 
 class LotsMixin:
@@ -15,13 +15,13 @@ class LotsMixin:
         Получает список всех опубликованных лотов переданной подкатегории.
 
         :param subcategory_type: тип подкатегории.
-        :type subcategory_type: :class:`FunPayAPI.enums.SubCategoryTypes`
+        :type subcategory_type: :class:`funpay_api.enums.SubCategoryTypes`
 
         :param subcategory_id: ID подкатегории.
         :type subcategory_id: :obj:`int`
 
         :return: список всех опубликованных лотов переданной подкатегории.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.LotShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.LotShortcut`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -52,7 +52,7 @@ class LotsMixin:
         :type subcategory_id: :obj:`int`
 
         :return: список лотов переданной подкатегории на аккаунте.
-        :rtype: :obj:`list` of :class:`FunPayAPI.types.MyLotShortcut`
+        :rtype: :obj:`list` of :class:`funpay_api.types.MyLotShortcut`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -83,7 +83,7 @@ class LotsMixin:
         :type lot_id: :obj:`int` or :obj:`str`
 
         :return: объект страницы лота или :obj:`None`, если лот не найден.
-        :rtype: :class:`FunPayAPI.types.lotPage` or :obj:`None`
+        :rtype: :class:`funpay_api.types.lotPage` or :obj:`None`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -113,7 +113,7 @@ class LotsMixin:
         :type lot_id: :obj:`int`
 
         :return: объект с полями лота.
-        :rtype: :class:`FunPayAPI.types.LotFields`
+        :rtype: :class:`funpay_api.types.LotFields`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -179,7 +179,7 @@ class LotsMixin:
         Сохраняет лот на FunPay.
 
         :param offer_fields: объект с полями лота.
-        :type offer_fields: :class:`FunPayAPI.types.LotFields`
+        :type offer_fields: :class:`funpay_api.types.LotFields`
         """
         if not self.is_initiated:
             raise exceptions.AccountNotInitiatedError()
@@ -278,7 +278,7 @@ class LotsMixin:
 
         :param subcategories: список подкатегорий, которые необходимо поднять. Если не указаны, поднимутся все
             подкатегории переданной категории.
-        :type subcategories: :obj:`list` of :obj:`int` or :class:`FunPayAPI.types.SubCategory`
+        :type subcategories: :obj:`list` of :obj:`int` or :class:`funpay_api.types.SubCategory`
 
         :param exclude: ID подкатегорий, которые не нужно поднимать.
         :type exclude: :obj:`list` of :obj:`int`, опционально.
