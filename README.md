@@ -14,8 +14,10 @@ This library provides a flexible and robust way to interact with FunPay, featuri
 
 ## Installation
 
+Temporary unavaliable
+
 ```bash
-pip install -U FunPayAPI
+pip install -U funpay-api
 ```
 
 ## Quickstart
