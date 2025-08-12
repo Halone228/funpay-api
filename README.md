@@ -26,7 +26,7 @@ For use in `asyncio` applications. All network-bound methods are coroutines and 
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount
+from funpay_api import AsyncAccount
 
 # It's recommended to store your golden_key in an environment variable
 # or another secure method instead of hardcoding it.
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 For use in standard, blocking applications. Methods will block until they complete.
 
 ```python
-from FunPayAPI import SyncAccount
+from funpay_api import SyncAccount
 
 GOLDEN_KEY = "your_golden_key_here"
 
@@ -71,7 +71,7 @@ The `Runner` allows you to listen for real-time events from FunPay, such as new 
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount, Runner
+from funpay_api import AsyncAccount, Runner
 from FunPayAPI.updater.events import NewMessageEvent
 
 GOLDEN_KEY = "your_golden_key_here"
@@ -105,7 +105,7 @@ The library uses a set of custom exceptions that inherit from `FunPayAPIError` f
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount
+from funpay_api import AsyncAccount
 from FunPayAPI.common.exceptions import FunPayAPIError
 
 GOLDEN_KEY = "invalid_key"

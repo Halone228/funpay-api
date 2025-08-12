@@ -1,4 +1,4 @@
-# FunPayAPI (Русская документация)
+# funpay_api(Русская документация)
 
 Современная, асинхронная библиотека-обертка для API FunPay.ru.
 
@@ -25,7 +25,7 @@ pip install -U FunPayAPI
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount
+from funpay_api import AsyncAccount
 
 # Рекомендуется хранить ваш golden_key в переменной окружения
 # или другом безопасном месте вместо жесткого кодирования.
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 Для использования в стандартных, блокирующих приложениях. Методы будут блокировать выполнение до своего завершения.
 
 ```python
-from FunPayAPI import SyncAccount
+from funpay_api import SyncAccount
 
 GOLDEN_KEY = "your_golden_key_here"
 
@@ -70,7 +70,7 @@ else:
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount, Runner
+from funpay_api import AsyncAccount, Runner
 from FunPayAPI.updater.events import NewMessageEvent
 
 GOLDEN_KEY = "your_golden_key_here"
@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-from FunPayAPI import AsyncAccount
+from funpay_api import AsyncAccount
 from FunPayAPI.common.exceptions import FunPayAPIError
 
 GOLDEN_KEY = "invalid_key"
