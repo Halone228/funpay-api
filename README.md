@@ -1,5 +1,6 @@
 # FunPayAPI
 [![ru](https://img.shields.io/badge/lang-ru-red.svg)](README.ru.md)
+
 A modern, asynchronous-first Python wrapper for the FunPay.ru API.
 
 This library provides a flexible and robust way to interact with FunPay, featuring:
