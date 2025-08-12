@@ -13,8 +13,10 @@
 
 ## Установка
 
+Временно недоступно
+
 ```bash
-pip install -U FunPayAPI
+pip install -U funpay-api
 ```
 
 ## Быстрый старт
