@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 
 from funpay_api.common import enums, utils, exceptions
 from .. import types
+from ..types import PaymentMethod, CalcResult
 from funpay_api.common.utils import RegularExpressions, parse_currency
-from bs4 import BeautifulSoup
-import json
+from ..client import AsyncClient, SyncClient
 from bs4 import BeautifulSoup
 import json
 
@@ -140,7 +140,7 @@ class WalletMixin:
             min_price_currency = parse_currency(min_price_currency)
         else:
             min_price, min_price_currency = None, types.Currency.UNKNOWN
-        return CalcResult(subcategory_type, subcategory_id, methods, price, min_price, min_price_currency,
+        return CalcResult(subcategory_type, value, methods, price, min_price, min_price_currency,
                           self.currency)
 
     async def get_exchange_rate(self: Account, currency: types.Currency) -> tuple[float, types.Currency]:
@@ -172,7 +172,10 @@ class WalletMixin:
             self.currency = currency
             return 1, currency
         else:
-            s = BeautifulSoup(b["modal"], "lxml").find("p", class_="lead").text.replace("\xa0", " ")
+            lead_element = BeautifulSoup(b["modal"], "lxml").find("p", class_="lead")
+            if lead_element is None:
+                raise exceptions.RequestFailedError("Unable to find exchange rate element")
+            s = lead_element.text.replace("\xa0", " ")
             match = RegularExpressions().EXCHANGE_RATE.fullmatch(s)
             assert match is not None
             swipe_to = match.group(2)

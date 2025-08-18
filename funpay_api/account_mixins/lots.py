@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
-from ..common import exceptions, enums
+from ..common import exceptions, enums, utils
 from .. import types
+from ..client import AsyncClient
+from bs4 import BeautifulSoup
 
 if TYPE_CHECKING:
     from funpay_api.async_account import AsyncAccount as Account

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Literal, Optional
 
 from funpay_api.common import exceptions, utils
 from .. import types
+from ..client import AsyncClient
 
 if TYPE_CHECKING:
     from funpay_api.async_account import AsyncAccount as Account

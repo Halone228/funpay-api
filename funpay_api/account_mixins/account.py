@@ -6,6 +6,7 @@ import re
 
 from funpay_api.common import exceptions
 from .. import types
+from ..client import AsyncClient
 
 if TYPE_CHECKING:
     from funpay_api.async_account import AsyncAccount as Account
